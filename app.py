@@ -7,19 +7,23 @@ model = joblib.load("BigMart_XGBoost_Model.joblib")
 
 st.title("BigMart Sales Prediction")
 
-# Input form for features
-features_input = st.text_input("Enter 4 feature values (comma-separated):")
+# Define feature names (replace with actual feature names)
+feature_names = ["Item_Weight", "Item_Visibility", "Item_MRP", "Outlet_Establishment_Year"]
+
+# Create input fields for each feature
+features_list = []
+for feature in feature_names:
+    value = st.number_input(f"Enter {feature}:", step=0.01)
+    features_list.append(value)
 
 if st.button("Predict"):
-    try:
-        features_list = [float(x) for x in features_input.split(",")]
+    # Ensure all values are provided
+    if any(v is None for v in features_list):
+        st.error("Please enter values for all features.")
+    else:
+        # Convert to numpy array and reshape for prediction
+        features_array = np.array(features_list).reshape(1, -1)
         
-        if len(features_list) != 4:
-            st.error(f"Feature shape mismatch! Expected 4 features, but got {len(features_list)}.")
-        else:
-            features_array = np.array(features_list).reshape(1, -1)
-            prediction = model.predict(features_array)[0]
-            st.success(f"Predicted Sales: {prediction:.2f}")
-
-    except ValueError:
-        st.error("Invalid input! Please enter numeric values separated by commas.")
+        # Predict sales
+        prediction = model.predict(features_array)[0]
+        st.success(f"Predicted Sales: {prediction:.2f}")
